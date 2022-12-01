@@ -1,0 +1,59 @@
+---
+title: "Example 1"
+author: Nynke Blomer
+date: "2022-12-01"
+output: html_document
+---
+
+# Data
+```{r load-data, message=FALSE}
+library(tidyverse)
+library(kableExtra)
+library(rmarkdown)
+library(ggpubr)
+
+# Load the dataset
+
+pop_data <- read_csv("data/gapminder_data.csv")
+
+# Create a table with data from European countries in 2007 showing the countries
+# with the largest life expectancy at the top
+
+euro_data_tbl <- pop_data %>% 
+                      filter(continent == "Europe" & year == 2007) %>%
+                      select(-continent, -year) %>%
+                      arrange(desc(lifeExp)) %>%
+                      rename("Country" = country, "Population Size" = pop, "Life
+                             Expectancy" = lifeExp, "GDP" = gdpPercap)
+
+```
+We have loaded the dataset...
+\
+
+```{r create-table}
+euro_data_tbl %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+```{r paged-table}
+paged_table(euro_data_tbl)
+
+```
+
+```{r fig-data}
+euro_data_fig <- pop_data %>% 
+                      filter(continent == "Europe") %>%
+                      mutate(year = as_factor(year))
+```
+
+``` {r fig}
+#Euro plot
+euro_plot <- euro_data_fig %>%
+                ggplot(mapping=aes(x=year, y=lifeExp)) +
+                geom_violin() +
+                stat_summary(fun = median, geom = "point")
+
+#draw euro plot
+euro_plot
+```
